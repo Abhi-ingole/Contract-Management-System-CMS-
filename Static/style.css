@@ -1,0 +1,683 @@
+/* General Body and Main Container Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Header and Navigation Styles */
+header {
+    background-color: #004d99;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+header nav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 15px;
+    overflow-x: auto;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+header nav a:hover {
+    background-color: #003366;
+}
+
+/* Dashboard Page Styles */
+.dashboard-main h2 {
+    text-align: center;
+    color: #333;
+}
+
+.dashboard-cards {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    overflow-x: auto;
+}
+
+.card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 250px;
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #004d99;
+}
+
+/* Management Page Styles (Forms and Tables) */
+.management-main h2 {
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.management-form-container, .management-table-container {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.management-form-container h3, .management-table-container h3 {
+    color: #004d99;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+form {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+}
+
+form label {
+    font-weight: bold;
+    grid-column: 1 / 2;
+    align-self: center;
+}
+
+form input, form textarea, form select {
+    grid-column: 2 / 3;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form button {
+    grid-column: 1 / -1;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+table th {
+    background-color: #004d99;
+    color: white;
+}
+
+.edit-btn, .delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.edit-btn {
+    background-color: #007bff;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styling for the Download buttons */
+.download-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+/* Styling for the Download All button */
+#downloadAllBtn {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+#downloadAllBtn:hover {
+    background-color: #2563eb;
+}
+/* General Body and Main Container Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Header and Navigation Styles */
+header {
+    background-color: #004d99;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+header nav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 15px;
+    overflow-x: auto;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+header nav a:hover {
+    background-color: #003366;
+}
+
+/* Dashboard Page Styles */
+.dashboard-main h2 {
+    text-align: center;
+    color: #333;
+}
+
+.dashboard-cards {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    overflow-x: auto;
+}
+
+.card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 250px;
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #004d99;
+}
+
+/* Management Page Styles (Forms and Tables) */
+.management-main h2 {
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.management-form-container, .management-table-container {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.management-form-container h3, .management-table-container h3 {
+    color: #004d99;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+form {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+}
+
+form label {
+    font-weight: bold;
+    grid-column: 1 / 2;
+    align-self: center;
+}
+
+form input, form textarea, form select {
+    grid-column: 2 / 3;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form button {
+    grid-column: 1 / -1;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+table th {
+    background-color: #004d99;
+    color: white;
+}
+
+.edit-btn, .delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.edit-btn {
+    background-color: #007bff;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styling for the Download buttons */
+.download-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+/* Styling for the Download All button */
+#downloadAllBtn {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+#downloadAllBtn:hover {
+    background-color: #2563eb;
+}
+/* Styling for the Logout button in the navigation */
+.logout-btn {
+    background-color: #dc3545; /* Red color to signify logout */
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+#about-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+#about-section h2 {
+    color: #004d99;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+#about-section p {
+    line-height: 1.6;
+}
+
+
+/* --- Global Styles & Layout --- */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #ffffff; /* White background */
+    color: #333333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: 400;
+}
+
+/* --- Room Grid Layout --- */
+.room-grid {
+    display: grid;
+    /* 4 columns for the top row, 2 columns for the bottom, centered */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 20px; /* Space between cards */
+    max-width: 1200px; /* Max width for the whole grid */
+    justify-items: center; /* Center items within grid columns */
+}
+
+/* Adjust for the 3rd row layout (2 items) to center them */
+.room-grid > :nth-child(5), 
+.room-grid > :nth-child(6) {
+    grid-column: span 2; /* Make the last two items span 2 columns each */
+}
+
+/* --- Room Card Styling --- */
+.room-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    width: 200px; /* Fixed width for the card box */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* The primary yellow/orange border found in the image */
+.room-card:focus,
+.room-card:hover {
+    outline: 2px solid #FFC300; 
+    border-radius: 5px;
+}
+
+/* Container for the icon (to mimic the square box with padding) */
+.icon-container {
+    width: 100%;
+    height: 150px; /* Placeholder height to match the image ratio */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #FFC300; /* Yellow/orange border around the box */
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+/* Placeholder image styling */
+.icon-container img {
+    /* In a real application, you'd use a background image or SVG to perfectly match */
+    width: 80%; 
+    height: 80%;
+    object-fit: contain;
+    /* To simulate the specific pink/yellow/grey icons, you would use actual icons/SVGs */
+}
+
+.room-label {
+    font-weight: 700;
+    padding-top: 5px;
+    border-top: 2px solid #333333; /* The separator line below the image/icon */
+    width: 80%; /* Width of the line under the icon */
+    font-size: 1em;
+}
+
+/* --- Media Queries for Responsiveness (Optional but recommended) --- */
+@media (max-width: 1100px) {
+    .room-grid {
+        grid-template-columns: repeat(3, 1fr); /* Switch to 3 columns on smaller screens */
+    }
+    /* Reset centering for the 3-column layout */
+    .room-grid > :nth-child(5), 
+    .room-grid > :nth-child(6) {
+        grid-column: span 1; 
+    }
+}
+
+@media (max-width: 650px) {
+    .room-grid {
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on mobile */
+    }
+}
+
+/* --- About Page Specific Styles --- */
+
+.page-title {
+    color: #004d99;
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px 0;
+    margin-bottom: 25px;
+    background-color: #e9f0ff;
+    border-radius: 6px;
+}
+
+.about-card-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.about-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1;
+}
+
+.about-card h3 {
+    color: #dc3545; /* Red color for section headings */
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+
+/* MISSION & VALUES Layout */
+.mission-values {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Mission takes 2/3, Values takes 1/3 */
+    gap: 30px;
+}
+
+.mission-box, .values-box {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mission-box h4, .values-box h4 {
+    color: #007bff; /* Blue for mission/vision/value titles */
+    font-size: 1.2rem;
+    margin-top: 0;
+    border-bottom: 1px dashed #c0c0c0;
+    padding-bottom: 5px;
+}
+
+.values-box ul, .service-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.values-box li::before {
+    content: "✔️"; /* Custom bullet point */
+    margin-right: 8px;
+    color: #28a745;
+}
+
+.materials-list {
+    list-style-type: disc;
+    columns: 2; /* Display materials in two columns */
+    padding-left: 20px;
+}
+
+.full-width {
+    flex: none; /* Override flex: 1 for full width items */
+    width: 100%;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 900px) {
+    .about-card-section, .mission-values {
+        flex-direction: column;
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Include all your other existing CSS rules below this */
+/*
+...
+...
+...
+*/
