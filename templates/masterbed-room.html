@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3D Master Bedroom — Colour Visualizer</title>
+<style>
+    :root{
+        --bg:#f4f6f8;
+        --card:#ffffff;
+        --accent:#9c27b0; /* Deep Purple/Lavender for Bedroom accent */
+        --muted:#6b7280;
+        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    }
+    body{margin:0;background:var(--bg);color:#0f172a;display:flex;justify-content:center;padding:28px;}
+    .wrap{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 360px;gap:24px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.08)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.muted{margin:0 0 14px;color:var(--muted)}
+    
+    /* visualizer */
+    .visualizer{display:flex;align-items:center;justify-content:center;height:680px}
+    svg.scene{width:100%;height:640px;max-width:860px;border-radius:8px;overflow:visible}
+
+    /* 3D SHADING ELEMENTS */
+    .shade{opacity:0.15; fill:#000;}
+    .highlight{opacity:0.2; fill:#fff;}
+
+    /* ALL interactive elements get the clickable style */
+    #wallBack, #wallLeft, #floor, #bedding, #headboard {
+        cursor: pointer;
+        transition: fill .3s; 
+    }
+    #wallBack:hover, #wallLeft:hover, #floor:hover, #bedding:hover, #headboard:hover {
+        filter:brightness(0.96); 
+    }
+
+    /* highlight when selected */
+    .selected-outline{fill:none;stroke:var(--accent);stroke-width:5;stroke-opacity:0.6;pointer-events:none}
+
+    /* controls */
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .control-row{display:flex;align-items:center;gap:10px}
+    label{min-width:80px;font-size:14px}
+    input[type="color"]{height:44px;width:56px;border-radius:10px;border:0;cursor:pointer}
+    .swatches{display:flex;gap:8px;flex-wrap:wrap}
+    .swatch{width:36px;height:36px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
+    .presets{display:flex;gap:8px;flex-wrap:wrap}
+    .preset{padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;font-size:13px;background:#fafafa}
+    .small-btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    .danger{background:#ef4444}
+    footer.note{font-size:13px;color:var(--muted);margin-top:10px}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="card">
+        <h1>3D Master Bedroom Colour Visualizer</h1>
+        <p class="muted">Click the Back Wall, Side Wall, Floor, Headboard, or Bedding to select it — then pick a colour.</p>
+
+        <div class="visualizer">
+            <svg id="scene" class="scene" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Master Bedroom 3D illustration">
+                
+                <polygon id="wallLeft" class="clickable" points="0,0 200,50 200,480 0,650" fill="#cbe6e5"/>
+
+                <rect id="wallBack" class="clickable" x="200" y="50" width="800" height="430" fill="#e0f2f1"/>
+                
+                <polygon id="floor" class="clickable" points="0,650 200,480 1000,480 1200,800" fill="#d2b48c"/>
+                
+                <ellipse cx="600" cy="790" rx="400" ry="60" class="shade"/>
+
+                <g transform="translate(800, 100)">
+                    <rect x="0" y="0" width="150" height="200" rx="8" fill="#cfeefc"/>
+                    <rect x="15" y="15" width="120" height="170" rx="6" fill="#fcfcfc"/>
+                </g>
+
+                <ellipse cx="600" cy="650" rx="400" ry="100" fill="#f0e68c" opacity="0.4"/>
+
+                <g transform="translate(300, 380)">
+                    
+                    <rect id="headboard" class="clickable" x="200" y="0" width="400" height="100" rx="10" fill="#8b4513"/>
+                    
+                    <rect x="150" y="90" width="500" height="30" fill="#696969"/>
+
+                    <rect x="160" y="120" width="480" height="20" fill="#fffafa"/>
+
+                    <rect id="bedding" class="clickable" x="160" y="140" width="480" height="180" rx="10" fill="#f5f5dc"/>
+
+                    <rect x="180" y="100" width="100" height="30" rx="5" fill="#f0ffff"/>
+                    <rect x="300" y="100" width="200" height="30" rx="5" fill="#f0ffff"/>
+                    <rect x="520" y="100" width="100" height="30" rx="5" fill="#f0ffff"/>
+
+                </g>
+
+                <g transform="translate(200, 480)">
+                    <rect x="0" y="0" width="80" height="100" rx="5" fill="#cd853f"/>
+                    <rect x="10" y="10" width="60" height="20" fill="#8b4513"/>
+                </g>
+
+                <g transform="translate(920, 480)">
+                    <rect x="0" y="0" width="80" height="100" rx="5" fill="#cd853f"/>
+                    <rect x="10" y="10" width="60" height="20" fill="#8b4513"/>
+                </g>
+                
+                <rect id="selectedOutline" class="selected-outline" x="0" y="0" width="0" height="0" rx="6" style="display:none"/>
+            </svg>
+        </div>
+
+        <div class="note muted" style="margin-top:10px">Interactive elements: Walls, Floor, Headboard, and Bedding. Side wall shading is automatic.</div>
+    </div>
+
+    <div class="card">
+        <h1 style="font-size:18px;margin-bottom:6px">Surface Controls</h1>
+        <p class="muted" style="margin-bottom:12px">Selected: <strong id="selectedName">WallBack</strong></p>
+
+        <div class="controls">
+            <div class="control-row">
+                <label for="colorPicker">Colour</label>
+                <input id="colorPicker" type="color" value="#e0f2f1">
+            </div>
+
+            <div class="control-row">
+                <button id="applyBtn" class="small-btn">Apply to Selected</button>
+                <button id="resetBtn" class="small-btn danger" style="margin-left:8px">Reset</button>
+            </div>
+
+            <div>
+                <label style="display:block;margin-bottom:8px">Quick Swatches</label>
+                <div class="swatches" id="swatches">
+                    <div class="swatch" data-color="#f5f5dc" style="background:#f5f5dc"></div>
+                    <div class="swatch" data-color="#b0e0e6" style="background:#b0e0e6"></div>
+                    <div class="swatch" data-color="#e6e6fa" style="background:#e6e6fa"></div>
+                    <div class="swatch" data-color="#ffe4e1" style="background:#ffe4e1"></div>
+                    <div class="swatch" data-color="#a9a9a9" style="background:#a9a9a9"></div>
+                    <div class="swatch" data-color="#4682b4" style="background:#4682b4"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:8px">
+                <label style="display:block;margin-bottom:8px">Presets</label>
+                <div class="presets">
+                    <div class="preset" data-preset='{"wallBack":"#e6e6fa", "floor":"#a0522d", "bedding":"#ffe4e1", "headboard":"#8b4513"}'>Romantic</div>
+                    <div class="preset" data-preset='{"wallBack":"#f0f8ff", "floor":"#555555", "bedding":"#b0e0e6", "headboard":"#696969"}'>Minimalist</div>
+                    <div class="preset" data-preset='{"wallBack":"#faf0e6", "floor":"#cd853f", "bedding":"#9ad28d", "headboard":"#d3d3d3"}'>Nature Calm</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+                <button id="exportSvg" class="small-btn">Export SVG</button>
+                <button id="exportPng" class="small-btn">Download PNG</button>
+            </div>
+
+            <footer class="note">SVG is vector. Side wall shading is applied automatically.</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements & state
+    const scene = document.getElementById('scene');
+    
+    // All interactive elements
+    const interactiveIds = ['wallBack', 'wallLeft', 'floor', 'bedding', 'headboard']; 
+    const clickableElements = interactiveIds.map(id => document.getElementById(id)).filter(Boolean);
+    
+    const selectedNameEl = document.getElementById('selectedName');
+    const colorPicker = document.getElementById('colorPicker');
+    const applyBtn = document.getElementById('applyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const swatches = document.getElementById('swatches');
+    const presetsEls = document.querySelectorAll('.preset');
+    const exportSvgBtn = document.getElementById('exportSvg');
+    const exportPngBtn = document.getElementById('exportPng');
+
+    let selectedId = 'wallBack';
+    const WALL_SHADE_PERCENT = -10; // Darken side wall by 10%
+
+    // --- Utility Functions ---
+    
+    // Simple color shading function
+    function shadeColor(hex, percent) {
+        const h = hex.replace('#','');
+        const r = parseInt(h.substring(0,2),16);
+        const g = parseInt(h.substring(2,4),16);
+        const b = parseInt(h.substring(4,6),16);
+        const t = percent<0?0:255;
+        const p = Math.abs(percent)/100;
+        const R = Math.round((t - r) * p) + r;
+        const G = Math.round((t - g) * p) + g;
+        const B = Math.round((t - b) * p) + b;
+        return '#'+(R.toString(16).padStart(2,'0'))+(G.toString(16).padStart(2,'0'))+(B.toString(16).padStart(2,'0'));
+    }
+
+    function getFillHex(el){
+        if(!el) return '#ffffff';
+        const f = el.getAttribute('fill') || window.getComputedStyle(el).fill || '#ffffff';
+        return rgbToHex(f);
+    }
+    function rgbToHex(color){
+        if(!color) return '#ffffff';
+        color = color.trim();
+        if(color.startsWith('#')) return color.length === 4 ? '#'+color[1]+color[1]+color[2]+color[2]+color[3]+color[3] : color;
+        const m = color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+))/);
+        if(m) return '#'+[1,2,3].map(i=>parseInt(m[i]).toString(16).padStart(2,'0')).join('');
+        return '#ffffff';
+    }
+
+    // --- Core Logic ---
+    
+    // Custom function to apply color to both walls with shading
+    function applyColorWithShading(baseId, baseColor){
+        if (baseId === 'wallBack' || baseId === 'wallLeft') {
+            document.getElementById('wallBack').setAttribute('fill', baseColor);
+            document.getElementById('wallLeft').setAttribute('fill', shadeColor(baseColor, WALL_SHADE_PERCENT));
+        } else {
+            // Applies to single elements like 'floor', 'bedding', 'headboard'
+            const el = document.getElementById(baseId);
+            if(el) el.setAttribute('fill', baseColor);
+        }
+    }
+
+    function selectPart(id){
+        // Map any part of the wall to 'wallBack' for control purposes
+        const baseId = (id === 'wallLeft') ? 'wallBack' : id;
+
+        selectedId = baseId;
+        
+        // Format the ID for display
+        selectedNameEl.textContent = baseId.charAt(0).toUpperCase() + baseId.slice(1);
+        
+        const el = document.getElementById(baseId);
+        if(el) colorPicker.value = getFillHex(el);
+        drawSelectionOutline(el);
+    }
+
+    function drawSelectionOutline(el){
+        const outline = document.getElementById('selectedOutline');
+        if(!el){ outline.style.display='none'; return; }
+        
+        // Draw the outline around the selected single element
+        try{
+            const bbox = el.getBBox();
+            const margin = 8;
+            outline.setAttribute('x', bbox.x - margin);
+            outline.setAttribute('y', bbox.y - margin);
+            outline.setAttribute('width', bbox.width + 2 * margin);
+            outline.setAttribute('height', bbox.height + 2 * margin);
+            outline.style.display = 'block';
+        }catch(e){
+            outline.style.display = 'none';
+        }
+    }
+
+    // --- Event Listeners ---
+    
+    // Wire click handlers for ALL interactive elements
+    clickableElements.forEach(el => {
+        el.addEventListener('click', (ev) => {
+            selectPart(el.id);
+            ev.stopPropagation();
+        });
+    });
+
+    // Apply color button logic
+    applyBtn.addEventListener('click', () => {
+        const newColor = colorPicker.value;
+        applyColorWithShading(selectedId, newColor);
+        selectPart(selectedId); // Re-select to update UI/Outline
+    });
+
+    // Quick swatches
+    swatches.querySelectorAll('.swatch').forEach(s => {
+        s.addEventListener('click', () => { 
+            colorPicker.value = s.dataset.color; 
+            applyColorWithShading(selectedId, s.dataset.color);
+        });
+    });
+
+    // Presets
+    presetsEls.forEach(p => {
+        p.addEventListener('click', () => {
+            const preset = JSON.parse(p.getAttribute('data-preset'));
+            
+            // Wall
+            if (preset.wallBack) applyColorWithShading('wallBack', preset.wallBack);
+            // Floor, Bedding, Headboard (single colors, no shading)
+            if (preset.floor) applyColorWithShading('floor', preset.floor);
+            if (preset.bedding) applyColorWithShading('bedding', preset.bedding);
+            if (preset.headboard) applyColorWithShading('headboard', preset.headboard);
+            
+            selectPart(selectedId); 
+        });
+    });
+
+    // Reset and Export (unchanged)
+    resetBtn.addEventListener('click', () => location.reload());
+    selectPart(selectedId); // Initial selection and outline draw
+
+    exportSvgBtn.addEventListener('click', () => {
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const blob = new Blob([source], {type:'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = '3d-master-bedroom-custom.svg'; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+    });
+
+    exportPngBtn.addEventListener('click', () => {
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const svgBlob = new Blob([source], {type:'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function(){
+            const canvas = document.createElement('canvas');
+            canvas.width = svg.viewBox.baseVal.width;
+            canvas.height = svg.viewBox.baseVal.height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0);
+            const png = canvas.toDataURL('image/png');
+            const a = document.createElement('a'); a.href = png; a.download = '3d-master-bedroom-custom.png'; document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    });
+
+    document.addEventListener('click', (e) => {
+        const svgRect = scene.getBoundingClientRect();
+        if(e.clientX < svgRect.left || e.clientX > svgRect.right || e.clientY < svgRect.top || e.clientY > svgRect.bottom) {
+            const outline = document.getElementById('selectedOutline');
+            outline.style.display = 'none';
+        } 
+    });
+</script>
+
+</body>
+</html>

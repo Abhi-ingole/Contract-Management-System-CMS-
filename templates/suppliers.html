@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Suppliers</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Contract Management <br> System</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="clients.html">Clients</a>
+                <a href="projects.html">Projects</a>
+                <a href="employees.html">Employees</a>
+                <a href="suppliers.html">Suppliers</a>
+                <a href="invoices.html">Invoices</a>
+                <a href="payments.html">Payments</a>
+                <a href="services.html">Services</a>
+                <a href="materials.html">Materials</a><br><br>
+            </nav>
+        </div>
+    </header>
+
+    <main class="management-main">
+        <h2>Suppliers Management</h2>
+        <div class="management-form-container">
+            <h3>Add New Supplier</h3>
+            <form id="addSupplierForm">
+                <label for="supplier_id">Supplier ID:</label>
+                <input type="text" id="supplier_id" name="supplier_id" required>
+                
+                <label for="name">Supplier Name:</label>
+                <input type="text" id="supplier_name" name="supplier_name" required>
+
+                <label for="contact_person">Contact Person:</label>
+                <input type="text" id="contact_person" name="contact_person">
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone">
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address"></textarea>
+
+                <button type="submit">Add Supplier</button>
+            </form>
+        </div>
+
+        <div class="management-table-container">
+            <h3>Existing Suppliers</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Supplier ID</th>
+                        <th>Supplier Name</th>
+                        <th>Contact Person</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="supplierTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Fetches and displays suppliers from the database
+        function fetchSuppliers() {
+            fetch('/api/suppliers')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('supplierTableBody');
+                    tableBody.innerHTML = '';
+                    if (data.suppliers && Array.isArray(data.suppliers)) {
+                        data.suppliers.forEach(supplier => {
+                            const row = `
+                                <tr data-supplier-id="${supplier.supplier_id}">
+                                    <td>${supplier.supplier_id || 'N/A'}</td>
+                                    <td>${supplier.supplier_name || 'N/A'}</td>
+                                    <td>${supplier.contact_person || 'N/A'}</td>
+                                    <td>${supplier.phone || 'N/A'}</td>
+                                    <td>${supplier.email || 'N/A'}</td>
+                                    <td>${supplier.address || 'N/A'}</td>
+                                    <td>
+                                        <button class="edit-btn">Edit</button>
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        });
+                    } else {
+                        const row = `<tr><td colspan="8">No suppliers found or data format is incorrect.</td></tr>`;
+                        tableBody.innerHTML = row;
+                    }
+
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const supplierId = this.closest('tr').dataset.supplierId;
+                            deleteSupplier(supplierId);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching suppliers:', error));
+        }
+
+        // Handles form submission to add a new supplier
+        document.getElementById('addSupplierForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const supplierData = Object.fromEntries(formData.entries());
+
+            fetch('/api/addSupplier', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(supplierData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                this.reset();
+                fetchSuppliers();
+            })
+            .catch(error => console.error('Error adding supplier:', error));
+        });
+
+        // Function to handle supplier deletion
+        function deleteSupplier(supplierId) {
+            if (confirm('Are you sure you want to delete this supplier?')) {
+                fetch(`/api/deleteSupplier/${supplierId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchSuppliers();
+                })
+                .catch(error => console.error('Error deleting supplier:', error));
+            }
+        }
+
+        // Initial fetch of suppliers when the page loads
+        document.addEventListener('DOMContentLoaded', fetchSuppliers);
+    </script>
+</body>
+</html>

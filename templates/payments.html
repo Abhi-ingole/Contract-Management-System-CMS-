@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Payments</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Contract Management <br> System</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="clients.html">Clients</a>
+                <a href="projects.html">Projects</a>
+                <a href="employees.html">Employees</a>
+                <a href="suppliers.html">Suppliers</a>
+                <a href="invoices.html">Invoices</a>
+                <a href="payments.html">Payments</a>
+                <a href="services.html">Services</a>
+                <a href="materials.html">Materials</a><br><br>
+            </nav>
+        </div>
+    </header>
+
+    <main class="management-main">
+        <h2>Payment Management</h2>
+        <div class="management-form-container">
+            <h3>Record New Payment</h3>
+            <form id="recordPaymentForm">
+                <label for="payment_id">Payment ID:</label>
+                <input type="text" id="payment_id" name="payment_id" required>
+
+                <label for="transaction_id">Transaction ID:</label>
+                <input type="text" id="transaction_id" name="transaction_id">
+
+                <label for="invoice_id">Invoice ID:</label>
+                <input type="text" id="invoice_id" name="invoice_id" required>
+
+                <label for="payment_date">Payment Date:</label>
+                <input type="date" id="payment_date" name="payment_date" required>
+                
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" step="0.01" required>
+
+                <label for="payment_method">Payment Method:</label>
+                <input type="text" id="payment_method" name="payment_method">
+
+                <button type="submit">Record Payment</button>
+            </form>
+        </div>
+
+        <div class="management-table-container">
+            <h3>Existing Payments</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Transaction ID</th>
+                        <th>Invoice ID</th>
+                        <th>Payment Date</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Fetches and displays payments from the database
+        function fetchPayments() {
+            fetch('/api/payments')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('paymentTableBody');
+                    tableBody.innerHTML = '';
+                    if (data.payments && Array.isArray(data.payments)) {
+                        data.payments.forEach(payment => {
+                            const row = `
+                                <tr data-payment-id="${payment.payment_id}">
+                                    <td>${payment.payment_id || 'N/A'}</td>
+                                     <td>${payment.transaction_id || 'N/A'}</td>
+                                    <td>${payment.invoice_id || 'N/A'}</td>
+                                    <td>${payment.payment_date || 'N/A'}</td>
+                                    <td>${payment.amount || 'N/A'}</td>
+                                    <td>${payment.payment_method || 'N/A'}</td>
+                                    <td>
+                                        <button class="download-btn">Download</button>
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        });
+                    } else {
+                        const row = `<tr><td colspan="6">No payments found or data format is incorrect.</td></tr>`;
+                        tableBody.innerHTML = row;
+                    }
+
+                    // Add event listeners to delete and download buttons
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const paymentId = this.closest('tr').dataset.paymentId;
+                            deletePayment(paymentId);
+                        });
+                    });
+                    document.querySelectorAll('.download-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const paymentId = this.closest('tr').dataset.paymentId;
+                            downloadPayment(paymentId);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching payments:', error));
+        }
+
+        // Handles form submission to record a new payment
+        document.getElementById('recordPaymentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const paymentData = Object.fromEntries(formData.entries());
+
+            fetch('/api/recordPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                this.reset();
+                fetchPayments();
+            })
+            .catch(error => console.error('Error recording payment:', error));
+        });
+
+        // Function to handle payment deletion
+        function deletePayment(paymentId) {
+            if (confirm('Are you sure you want to delete this payment?')) {
+                fetch(`/api/deletePayment/${paymentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchPayments();
+                })
+                .catch(error => console.error('Error deleting payment:', error));
+            }
+        }
+
+        // Function to handle payment download
+        function downloadPayment(paymentId) {
+            window.location.href = `/api/downloadPayment/${paymentId}`;
+        }
+
+        // Initial fetch of payments when the page loads
+        document.addEventListener('DOMContentLoaded', fetchPayments);
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Projects</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Contract Management <br> System</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="clients.html">Clients</a>
+                <a href="projects.html">Projects</a>
+                <a href="employees.html">Employees</a>
+                <a href="suppliers.html">Suppliers</a>
+                <a href="invoices.html">Invoices</a>
+                <a href="payments.html">Payments</a>
+                <a href="services.html">Services</a>
+                <a href="materials.html">Materials</a><br><br>
+            </nav>
+        </div>
+    </header>
+
+    <main class="management-main">
+        <h2>Projects Management</h2>
+        <div class="management-form-container">
+            <h3>Add New Project</h3>
+            <form id="addProjectForm">
+                <label for="project_id">Project ID:</label>
+                <input type="text" id="project_id" name="project_id" required>
+
+                <label for="client_id">Client ID:</label>
+                <input type="text" id="client_id" name="client_id" required>
+
+                <label for="project_name">Project Name:</label>
+                <input type="text" id="project_name" name="project_name" required>
+
+                <label for="project_location">Project Location:</label>
+                <input type="text" id="project_location" name="project_location" required>
+
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+
+                <label for="status">Status:</label>
+                <input type="text" id="status" name="status">
+
+                <label for="budget">Budget:</label>
+                <input type="number" id="budget" name="budget">
+
+                <label for="actual_cost">Actual Cost:</label>
+                <input type="number" id="actual_cost" name="actual_cost">
+
+                <label for="contract_value">Contract Value:</label>
+                <input type="number" id="contract_value" name="contract_value">
+
+                <label for="description">Description:</label>
+                <textarea id="description" name="description"></textarea>
+
+                <button type="submit">Add Project</button>
+            </form>
+        </div>
+
+        <div class="management-table-container">
+            <h3>Existing Projects</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project ID</th>
+                        <th>Client ID</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Budget</th>
+                        <th>Actual Cost</th>
+                        <th>Contract Value</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="projectTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <main class="management-main">
+    <h2>Projects Management</h2>
+    <div class="management-table-container">
+        <h3>Existing Projects</h3>
+        <button id="downloadAllBtn" class="download-btn">Download All Projects</button>
+        <table>
+            <thead>
+                <tr>
+                    </tr>
+            </thead>
+            <tbody id="projectTableBody">
+                </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // ... (your existing functions like fetchProjects, deleteProject) ...
+
+    // NEW: Function to handle downloading all project data
+    function downloadAllProjects() {
+        window.location.href = `/api/downloadAllProjects`;
+    }
+
+    // Add an event listener to the new button
+    document.getElementById('downloadAllBtn').addEventListener('click', downloadAllProjects);
+</script>
+
+    <script>
+        // Fetches and displays projects from the database
+        function fetchProjects() {
+            fetch('/api/projects')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('projectTableBody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+
+                    if (data.projects && Array.isArray(data.projects)) {
+                        data.projects.forEach(project => {
+                            const row = `
+                                <tr data-project-id="${project.project_id}">
+                                    <td>${project.project_id || 'N/A'}</td>
+                                    <td>${project.client_id || 'N/A'}</td>
+                                    <td>${project.project_name || 'N/A'}</td>
+                                    <td>${project.project_location || 'N/A'}</td>
+                                    <td>${project.start_date || 'N/A'}</td>
+                                    <td>${project.end_date || 'N/A'}</td>
+                                    <td>${project.status || 'N/A'}</td>
+                                    <td>${project.budget || 'N/A'}</td>
+                                    <td>${project.actual_cost || 'N/A'}</td>
+                                    <td>${project.contract_value || 'N/A'}</td>
+                                    <td>${project.description || 'N/A'}</td>
+                                    <td>
+                                        <button class="download-btn">Download</button>
+                                        <button class="edit-btn">Edit</button>
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        });
+                    } else {
+                        console.error('API response format is incorrect:', data);
+                        const row = `<tr><td colspan="12">No projects found or data format is incorrect.</td></tr>`;
+                        tableBody.innerHTML = row;
+                    }
+
+                    document.querySelectorAll('.download-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const projectId = this.closest('tr').dataset.projectId;
+                            downloadProject(projectId);
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const projectId = this.closest('tr').dataset.projectId;
+                            deleteProject(projectId);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching projects:', error);
+                    const tableBody = document.getElementById('projectTableBody');
+                    tableBody.innerHTML = `<tr><td colspan="12">Error loading data. Check the server console.</td></tr>`;
+                });
+        }
+
+        // Handles form submission to add a new project
+        document.getElementById('addProjectForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const projectData = Object.fromEntries(formData.entries());
+
+            fetch('/api/addProject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(projectData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                this.reset();
+                fetchProjects();
+            })
+            .catch(error => console.error('Error adding project:', error));
+        });
+
+        // Function to handle project deletion
+        function deleteProject(projectId) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                fetch(`/api/deleteProject/${projectId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchProjects();
+                })
+                .catch(error => console.error('Error deleting project:', error));
+            }
+        }
+        
+        // NEW: Function to handle project download
+        function downloadProject(projectId) {
+            window.location.href = `/api/downloadProject/${projectId}`;
+        }
+
+        // Initial fetch of projects when the page loads
+        document.addEventListener('DOMContentLoaded', fetchProjects);
+    </script>
+</body>
+</html>

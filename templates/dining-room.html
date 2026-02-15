@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3D Dining Room Wall Visualizer</title>
+<style>
+    :root{
+        --bg:#f4f6f8;
+        --card:#ffffff;
+        --accent:#0ea5a4; /* Teal/Cyan accent */
+        --muted:#6b7280;
+        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    }
+    body{margin:0;background:var(--bg);color:#0f172a;display:flex;justify-content:center;padding:28px;}
+    .wrap{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 360px;gap:24px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.08)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.muted{margin:0 0 14px;color:var(--muted)}
+    
+    /* visualizer */
+    .visualizer{display:flex;align-items:center;justify-content:center;height:680px}
+    svg.scene{width:100%;height:640px;max-width:860px;border-radius:8px;overflow:visible}
+
+    /* ONLY WALLS are styled for interaction, but only WallBack has the listener */
+    #wallBack, #wallLeft {
+        transition: fill .3s; /* Smooth color change */
+    }
+    #wallBack {
+        cursor: pointer;
+    }
+    #wallBack:hover{filter:brightness(0.96);}
+    
+    /* highlight when selected */
+    .selected-outline{fill:none;stroke:var(--accent);stroke-width:5;stroke-opacity:0.6;pointer-events:none}
+
+    /* controls (rest of CSS remains the same) */
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .control-row{display:flex;align-items:center;gap:10px}
+    label{min-width:80px;font-size:14px}
+    input[type="color"]{height:44px;width:56px;border-radius:10px;border:0;cursor:pointer}
+    .swatches{display:flex;gap:8px;flex-wrap:wrap}
+    .swatch{width:36px;height:36px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
+    .presets{display:flex;gap:8px;flex-wrap:wrap}
+    .preset{padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;font-size:13px;background:#fafafa}
+    .small-btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    .danger{background:#ef4444}
+    footer.note{font-size:13px;color:var(--muted);margin-top:10px}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="card">
+        <h1>3D Dining Room Wall Visualizer</h1>
+        <p class="muted">Click the Back Wall area to select it — the Side Wall automatically darkens for a 3D effect.</p>
+
+        <div class="visualizer">
+            <svg id="scene" class="scene" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dining room 3D illustration">
+                
+                <polygon id="wallLeft" points="0,0 200,50 200,460 0,650" fill="#c3e0d8"/>
+
+                <rect id="wallBack" x="200" y="50" width="800" height="410" fill="#d7f0eb"/>
+                
+                <g transform="translate(840,80)">
+                    <rect x="0" y="0" width="120" height="220" rx="8" fill="#cfeefc"/>
+                    <rect x="10" y="18" width="100" height="184" rx="6" fill="#fbfeff"/>
+                </g>
+
+                <polygon id="floor" points="0,650 200,460 1000,460 1200,800" fill="#f2ebe1"/>
+                
+                <ellipse cx="600" cy="790" rx="400" ry="60" fill="#000" opacity="0.1"/>
+
+                <g id="sideboard" transform="translate(10,500)">
+                    <rect x="0" y="0" width="160" height="80" rx="10" fill="#d9c4b0"/>
+                    <rect x="10" y="10" width="140" height="60" rx="6" fill="#bfa089"/>
+                </g>
+
+                <ellipse id="rug" cx="600" cy="620" rx="320" ry="100" fill="#feddc9"/>
+
+                <g id="tableGroup" transform="translate(300,380)">
+                    <ellipse cx="360" cy="250" rx="240" ry="70" fill="rgba(0,0,0,0.06)"/>
+                    <rect x="60" y="80" width="520" height="160" rx="30" fill="#8b5e3c"/>
+                    <rect x="90" y="100" width="460" height="120" rx="22" fill="#b67f57"/>
+                </g>
+
+                <g id="chair1" transform="translate(250,440)">
+                    <rect x="0" y="0" width="60" height="80" rx="8" fill="#6b7280"/>
+                </g>
+                <g id="chair3" transform="translate(700,440)">
+                    <rect x="0" y="0" width="60" height="80" rx="8" fill="#6b7280"/>
+                </g>
+
+                <g id="lamp" transform="translate(520,80)">
+                    <rect x="76" y="40" width="8" height="64" rx="4" fill="#b9770e"/>
+                    <ellipse cx="80" cy="110" rx="120" ry="22" fill="#fff3d6" opacity="0.92"/>
+                </g>
+
+                <rect id="selectedOutline" class="selected-outline" x="0" y="0" width="0" height="0" rx="6" style="display:none"/>
+            </svg>
+        </div>
+
+        <div class="note muted" style="margin-top:10px">Interactive element: **Back Wall** only.</div>
+    </div>
+
+    <div class="card">
+        <h1 style="font-size:18px;margin-bottom:6px">Wall Controls</h1>
+        <p class="muted" style="margin-bottom:12px">Selected: <strong id="selectedName">Back Wall</strong></p>
+
+        <div class="controls">
+            <div class="control-row">
+                <label for="colorPicker">Colour</label>
+                <input id="colorPicker" type="color" value="#d7f0eb">
+            </div>
+
+            <div class="control-row">
+                <button id="applyBtn" class="small-btn">Apply to Walls</button>
+                <button id="resetBtn" class="small-btn danger" style="margin-left:8px">Reset</button>
+            </div>
+
+            <div>
+                <label style="display:block;margin-bottom:8px">Quick Swatches</label>
+                <div class="swatches" id="swatches">
+                    <div class="swatch" data-color="#ffffff" style="background:#ffffff"></div>
+                    <div class="swatch" data-color="#f6f7fb" style="background:#f6f7fb"></div>
+                    <div class="swatch" data-color="#ffd59a" style="background:#ffd59a"></div>
+                    <div class="swatch" data-color="#9ad28d" style="background:#9ad28d"></div>
+                    <div class="swatch" data-color="#b67f57" style="background:#b67f57"></div>
+                    <div class="swatch" data-color="#6b7280" style="background:#6b7280"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:8px">
+                <label style="display:block;margin-bottom:8px">Wall Presets</label>
+                <div class="presets">
+                    <div class="preset" data-preset='{"wallBack":"#f3f7f6"}'>Modern</div>
+                    <div class="preset" data-preset='{"wallBack":"#fff7ed"}'>Warm</div>
+                    <div class="preset" data-preset='{"wallBack":"#e6f6f2"}'>Fresh</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+                <button id="exportSvg" class="small-btn">Export SVG</button>
+                <button id="exportPng" class="small-btn">Download PNG</button>
+            </div>
+
+            <footer class="note">SVG is vector. Side wall shading is applied automatically.</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements & state
+    const scene = document.getElementById('scene');
+    // We only actively track the two walls for coloring, but only BackWall is clicked
+    const wallElements = ['wallBack', 'wallLeft'];
+    const selectedNameEl = document.getElementById('selectedName');
+    const colorPicker = document.getElementById('colorPicker');
+    const applyBtn = document.getElementById('applyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const swatches = document.getElementById('swatches');
+    const presetsEls = document.querySelectorAll('.preset');
+    const exportSvgBtn = document.getElementById('exportSvg');
+    const exportPngBtn = document.getElementById('exportPng');
+
+    let selectedId = 'wallBack'; 
+    const SHADE_PERCENT = -10; // Darken side wall by 10%
+
+    // --- Utility Functions ---
+    
+    // Simple color shading function
+    function shadeColor(hex, percent) {
+        const h = hex.replace('#','');
+        const r = parseInt(h.substring(0,2),16);
+        const g = parseInt(h.substring(2,4),16);
+        const b = parseInt(h.substring(4,6),16);
+        const t = percent<0?0:255;
+        const p = Math.abs(percent)/100;
+        const R = Math.round((t - r) * p) + r;
+        const G = Math.round((t - g) * p) + g;
+        const B = Math.round((t - b) * p) + b;
+        return '#'+(R.toString(16).padStart(2,'0'))+(G.toString(16).padStart(2,'0'))+(B.toString(16).padStart(2,'0'));
+    }
+
+    function getFillHex(el){
+        if(!el) return '#ffffff';
+        const f = el.getAttribute('fill') || window.getComputedStyle(el).fill || '#ffffff';
+        return rgbToHex(f);
+    }
+    function rgbToHex(color){
+        if(!color) return '#ffffff';
+        color = color.trim();
+        if(color.startsWith('#')) {
+            if(color.length === 4) return '#'+color[1]+color[1]+color[2]+color[2]+color[3]+color[3];
+            return color;
+        }
+        const m = color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+))/);
+        if(m) return '#'+[1,2,3].map(i=>parseInt(m[i]).toString(16).padStart(2,'0')).join('');
+        return '#ffffff';
+    }
+
+    // --- Core Logic ---
+    
+    // Custom function to apply color to both walls with shading
+    function applyWallColor(baseColor){
+        const wallBack = document.getElementById('wallBack');
+        const wallLeft = document.getElementById('wallLeft');
+        if(wallBack) wallBack.setAttribute('fill', baseColor);
+        if(wallLeft) wallLeft.setAttribute('fill', shadeColor(baseColor, SHADE_PERCENT));
+        selectPart('wallBack');
+    }
+
+    // Select a part (fixed to wallBack since it's the only one clicked)
+    function selectPart(id){
+        selectedId = 'wallBack';
+        selectedNameEl.textContent = 'Back Wall';
+        const el = document.getElementById('wallBack');
+        if(el) colorPicker.value = getFillHex(el);
+        drawSelectionOutline(el);
+    }
+
+    // Outline logic (applies to the main back wall)
+    function drawSelectionOutline(el){
+        const outline = document.getElementById('selectedOutline');
+        if(!el){ outline.style.display='none'; return; }
+        try{
+            // Draw outline around the main Back Wall element
+            const bbox = el.getBBox();
+            outline.setAttribute('x', bbox.x - 8);
+            outline.setAttribute('y', bbox.y - 8);
+            outline.setAttribute('width', bbox.width + 16);
+            outline.setAttribute('height', bbox.height + 16);
+            outline.style.display = 'block';
+        }catch(e){
+            outline.style.display = 'none';
+        }
+    }
+
+    // --- Event Listeners ---
+
+    // Wire click handlers ONLY to the back wall
+    const wallBackEl = document.getElementById('wallBack');
+    if (wallBackEl) {
+        wallBackEl.addEventListener('click', (ev)=>{
+            selectPart('wallBack');
+            ev.stopPropagation();
+        });
+    }
+
+    // apply colour button
+    applyBtn.addEventListener('click', ()=>{
+        applyWallColor(colorPicker.value);
+    });
+
+    // quick swatches
+    swatches.querySelectorAll('.swatch').forEach(s=>{
+        s.addEventListener('click', ()=>{ 
+            colorPicker.value = s.dataset.color; 
+            applyWallColor(s.dataset.color);
+        });
+    });
+
+    // presets 
+    presetsEls.forEach(p=>{
+        p.addEventListener('click', ()=>{
+            const preset = JSON.parse(p.getAttribute('data-preset'));
+            const wallColor = preset.wallBack;
+            if (wallColor) {
+                applyWallColor(wallColor);
+            }
+        });
+    });
+
+    // reset (reload original colours)
+    resetBtn.addEventListener('click', ()=> location.reload());
+
+    // select initial part
+    selectPart(selectedId);
+
+    // --- Export Functions (Adjusted to use the full SVG) ---
+    exportSvgBtn.addEventListener('click', ()=>{
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const blob = new Blob([source], {type:'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = '3d-dining-room-wall.svg'; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+    });
+
+    exportPngBtn.addEventListener('click', ()=>{
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const svgBlob = new Blob([source], {type:'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function(){
+            const canvas = document.createElement('canvas');
+            canvas.width = svg.viewBox.baseVal.width;
+            canvas.height = svg.viewBox.baseVal.height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0);
+            const png = canvas.toDataURL('image/png');
+            const a = document.createElement('a'); a.href = png; a.download = '3d-dining-room-wall.png'; document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    });
+
+    document.addEventListener('click', (e)=>{
+        const svgRect = scene.getBoundingClientRect();
+        if(e.clientX < svgRect.left || e.clientX > svgRect.right || e.clientY < svgRect.top || e.clientY > svgRect.bottom) {
+            const outline = document.getElementById('selectedOutline');
+            outline.style.display = 'none';
+        } 
+    });
+</script>
+
+</body>
+</html>

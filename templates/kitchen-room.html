@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3D Kitchen Room — Full Interior Colour Visualizer</title>
+<style>
+    :root{
+        --bg:#f4f6f8;
+        --card:#ffffff;
+        --accent:#ff9900; /* Kitchen-friendly orange */
+        --muted:#6b7280;
+        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    }
+    body{margin:0;background:var(--bg);color:#0f172a;display:flex;justify-content:center;padding:28px;}
+    .wrap{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 360px;gap:24px}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.08)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.muted{margin:0 0 14px;color:var(--muted)}
+    
+    /* visualizer */
+    .visualizer{display:flex;align-items:center;justify-content:center;height:680px}
+    svg.scene{width:100%;height:640px;max-width:860px;border-radius:8px;overflow:visible}
+
+    /* 3D SHADING ELEMENTS */
+    .shade{opacity:0.1; fill:#000;}
+    .highlight{opacity:0.2; fill:#fff;}
+
+    /* ALL interactive elements get the clickable style */
+    #wallBack, #wallLeft, #floor, #backsplashBack, #backsplashLeft {
+        cursor: pointer;
+        transition: fill .3s; 
+    }
+    #wallBack:hover, #wallLeft:hover, #floor:hover, #backsplashBack:hover, #backsplashLeft:hover {
+        filter:brightness(0.96); 
+    }
+
+    /* highlight when selected */
+    .selected-outline{fill:none;stroke:var(--accent);stroke-width:5;stroke-opacity:0.6;pointer-events:none}
+
+    /* controls */
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .control-row{display:flex;align-items:center;gap:10px}
+    label{min-width:80px;font-size:14px}
+    input[type="color"]{height:44px;width:56px;border-radius:10px;border:0;cursor:pointer}
+    .swatches{display:flex;gap:8px;flex-wrap:wrap}
+    .swatch{width:36px;height:36px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
+    .presets{display:flex;gap:8px;flex-wrap:wrap}
+    .preset{padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;font-size:13px;background:#fafafa}
+    .small-btn{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    .danger{background:#ef4444}
+    footer.note{font-size:13px;color:var(--muted);margin-top:10px}
+    @media (max-width:1000px){.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="card">
+        <h1>3D Kitchen Room Colour Visualizer</h1>
+        <p class="muted">Click the Wall (Back/Side), Floor, or Backsplash (Back/Side) to select it — then pick a colour.</p>
+
+        <div class="visualizer">
+            <svg id="scene" class="scene" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kitchen room 3D illustration">
+                
+                <polygon id="wallLeft" class="clickable" points="0,0 300,50 300,300 0,650" fill="#d8d8e6"/> 
+
+                <rect id="wallBack" class="clickable" x="300" y="50" width="800" height="250" fill="#f8f8f8"/>
+
+                <polygon id="floor" class="clickable" points="0,650 300,300 1100,300 1200,800" fill="#e0e0e0"/>
+                
+                <ellipse cx="600" cy="790" rx="400" ry="60" class="shade"/>
+
+                <rect id="backsplashBack" class="clickable" x="300" y="300" width="800" height="100" fill="#f5f5f5"/>
+
+                <polygon id="backsplashLeft" class="clickable" points="0,650 300,300 300,400 0,650" fill="#e0e0e0"/> 
+                
+                <rect x="300" y="400" width="800" height="20" fill="#424242"/>
+                <polygon points="0,650 300,400 300,420 0,650" fill="#212121"/>
+                
+                <rect x="300" y="420" width="800" height="150" fill="#9e9e9e"/>
+                
+                <rect x="500" y="150" width="400" height="120" fill="#bdbdbd"/>
+
+                <rect x="700" y="420" width="100" height="150" fill="#616161"/>
+                
+                <rect x="100" y="320" width="150" height="250" fill="#bdbdbd"/>
+                
+                <rect id="selectedOutline" class="selected-outline" x="0" y="0" width="0" height="0" rx="6" style="display:none"/>
+            </svg>
+        </div>
+
+        <div class="note muted" style="margin-top:10px">Interactive elements: Walls, Floor, and Backsplash zones.</div>
+    </div>
+
+    <div class="card">
+        <h1 style="font-size:18px;margin-bottom:6px">Surface Controls</h1>
+        <p class="muted" style="margin-bottom:12px">Selected: <strong id="selectedName">WallBack</strong></p>
+
+        <div class="controls">
+            <div class="control-row">
+                <label for="colorPicker">Colour</label>
+                <input id="colorPicker" type="color" value="#f8f8f8">
+            </div>
+
+            <div class="control-row">
+                <button id="applyBtn" class="small-btn">Apply to Selected</button>
+                <button id="resetBtn" class="small-btn danger" style="margin-left:8px">Reset</button>
+            </div>
+
+            <div>
+                <label style="display:block;margin-bottom:8px">Quick Swatches</label>
+                <div class="swatches" id="swatches">
+                    <div class="swatch" data-color="#ffffff" style="background:#ffffff"></div>
+                    <div class="swatch" data-color="#ffefd5" style="background:#ffefd5"></div>
+                    <div class="swatch" data-color="#b0e0e6" style="background:#b0e0e6"></div>
+                    <div class="swatch" data-color="#9ad28d" style="background:#9ad28d"></div>
+                    <div class="swatch" data-color="#a9a9a9" style="background:#a9a9a9"></div>
+                    <div class="swatch" data-color="#d3d3d3" style="background:#d3d3d3"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:8px">
+                <label style="display:block;margin-bottom:8px">Presets</label>
+                <div class="presets">
+                    <div class="preset" data-preset='{"wall":"#fff0e0", "floor":"#a0a0a0", "backsplash":"#9ad28d"}'>Earthy</div>
+                    <div class="preset" data-preset='{"wall":"#e6f0ff", "floor":"#555555", "backsplash":"#ffffff"}'>Modern</div>
+                    <div class="preset" data-preset='{"wall":"#f0f8ff", "floor":"#e0e0e0", "backsplash":"#ff9900"}'>Contrast</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+                <button id="exportSvg" class="small-btn">Export SVG</button>
+                <button id="exportPng" class="small-btn">Download PNG</button>
+            </div>
+
+            <footer class="note">Shading is automatically applied to the left walls/backsplash.</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements & state
+    const scene = document.getElementById('scene');
+    
+    // All interactive elements
+    const interactiveIds = ['wallBack', 'wallLeft', 'floor', 'backsplashBack', 'backsplashLeft']; 
+    const clickableElements = interactiveIds.map(id => document.getElementById(id)).filter(Boolean);
+    
+    const selectedNameEl = document.getElementById('selectedName');
+    const colorPicker = document.getElementById('colorPicker');
+    const applyBtn = document.getElementById('applyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const swatches = document.getElementById('swatches');
+    const presetsEls = document.querySelectorAll('.preset');
+    const exportSvgBtn = document.getElementById('exportSvg');
+    const exportPngBtn = document.getElementById('exportPng');
+
+    let selectedId = 'wallBack';
+    const WALL_SHADE_PERCENT = -10; // Darken side walls by 10%
+
+    // --- Utility Functions ---
+    
+    function shadeColor(hex, percent) {
+        const h = hex.replace('#','');
+        const r = parseInt(h.substring(0,2),16);
+        const g = parseInt(h.substring(2,4),16);
+        const b = parseInt(h.substring(4,6),16);
+        const t = percent<0?0:255;
+        const p = Math.abs(percent)/100;
+        const R = Math.round((t - r) * p) + r;
+        const G = Math.round((t - g) * p) + g;
+        const B = Math.round((t - b) * p) + b;
+        return '#'+(R.toString(16).padStart(2,'0'))+(G.toString(16).padStart(2,'0'))+(B.toString(16).padStart(2,'0'));
+    }
+    
+    function getFillHex(el){
+        if(!el) return '#ffffff';
+        const f = el.getAttribute('fill') || window.getComputedStyle(el).fill || '#ffffff';
+        return rgbToHex(f);
+    }
+    function rgbToHex(color){
+        if(!color) return '#ffffff';
+        color = color.trim();
+        if(color.startsWith('#')) return color.length === 4 ? '#'+color[1]+color[1]+color[2]+color[2]+color[3]+color[3] : color;
+        const m = color.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+))/);
+        if(m) return '#'+[1,2,3].map(i=>parseInt(m[i]).toString(16).padStart(2,'0')).join('');
+        return '#ffffff';
+    }
+
+    // --- Core Logic ---
+    
+    // Special function to apply color with shading to both walls
+    function applyGroupColor(baseId, baseColor){
+        if (baseId === 'wallBack') {
+            document.getElementById('wallBack').setAttribute('fill', baseColor);
+            document.getElementById('wallLeft').setAttribute('fill', shadeColor(baseColor, WALL_SHADE_PERCENT));
+        } else if (baseId === 'backsplashBack') {
+            document.getElementById('backsplashBack').setAttribute('fill', baseColor);
+            document.getElementById('backsplashLeft').setAttribute('fill', shadeColor(baseColor, WALL_SHADE_PERCENT));
+        } else {
+            // Applies to single elements like 'floor'
+            document.getElementById(baseId).setAttribute('fill', baseColor);
+        }
+    }
+
+    function selectPart(id){
+        selectedId = id;
+        // Map special IDs to groups or base names
+        let displayName = id;
+        if (id === 'wallLeft') displayName = 'WallBack';
+        if (id === 'backsplashLeft') displayName = 'BacksplashBack';
+        
+        selectedId = displayName; // Set the selected ID to the primary (unshaded) element
+        
+        // Format the ID for display
+        selectedNameEl.textContent = selectedId.charAt(0).toUpperCase() + selectedId.slice(1).replace(/Back/g, '');
+        
+        const el = document.getElementById(selectedId);
+        if(el) colorPicker.value = getFillHex(el);
+        drawSelectionOutline(el);
+    }
+
+    function drawSelectionOutline(el){
+        const outline = document.getElementById('selectedOutline');
+        if(!el){ outline.style.display='none'; return; }
+        
+        // Draw the outline around the selected single element
+        try{
+            const bbox = el.getBBox();
+            const margin = 8;
+            outline.setAttribute('x', bbox.x - margin);
+            outline.setAttribute('y', bbox.y - margin);
+            outline.setAttribute('width', bbox.width + 2 * margin);
+            outline.setAttribute('height', bbox.height + 2 * margin);
+            outline.style.display = 'block';
+        }catch(e){
+            outline.style.display = 'none';
+        }
+    }
+
+    // --- Event Listeners ---
+    
+    // Wire click handlers for ALL interactive elements
+    clickableElements.forEach(el => {
+        el.addEventListener('click', (ev) => {
+            // Determine the base element ID to select and color
+            let baseId = el.id;
+            if (el.id === 'wallLeft') baseId = 'wallBack';
+            if (el.id === 'backsplashLeft') baseId = 'backsplashBack';
+            
+            selectPart(baseId);
+            ev.stopPropagation();
+        });
+    });
+
+    // Apply color button logic
+    applyBtn.addEventListener('click', () => {
+        const newColor = colorPicker.value;
+        applyGroupColor(selectedId, newColor);
+    });
+
+    // Quick swatches
+    swatches.querySelectorAll('.swatch').forEach(s => {
+        s.addEventListener('click', () => { 
+            colorPicker.value = s.dataset.color; 
+            applyGroupColor(selectedId, s.dataset.color);
+        });
+    });
+
+    // Presets
+    presetsEls.forEach(p => {
+        p.addEventListener('click', () => {
+            const preset = JSON.parse(p.getAttribute('data-preset'));
+            
+            // Wall
+            if (preset.wall) applyGroupColor('wallBack', preset.wall);
+            // Floor
+            if (preset.floor) applyGroupColor('floor', preset.floor);
+            // Backsplash
+            if (preset.backsplash) applyGroupColor('backsplashBack', preset.backsplash);
+            
+            selectPart(selectedId); 
+        });
+    });
+
+    // Reset and Export (unchanged)
+    resetBtn.addEventListener('click', () => location.reload());
+    selectPart(selectedId); // Initial selection and outline draw
+
+    exportSvgBtn.addEventListener('click', () => {
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const blob = new Blob([source], {type:'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = '3d-kitchen-custom.svg'; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+    });
+
+    exportPngBtn.addEventListener('click', () => {
+        const svg = document.getElementById('scene');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        if(!/xmlns=/.test(source)) source = source.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+        const svgBlob = new Blob([source], {type:'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = function(){
+            const canvas = document.createElement('canvas');
+            canvas.width = svg.viewBox.baseVal.width;
+            canvas.height = svg.viewBox.baseVal.height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0);
+            const png = canvas.toDataURL('image/png');
+            const a = document.createElement('a'); a.href = png; a.download = '3d-kitchen-custom.png'; document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        };
+        img.src = url;
+    });
+
+    document.addEventListener('click', (e) => {
+        const svgRect = scene.getBoundingClientRect();
+        if(e.clientX < svgRect.left || e.clientX > svgRect.right || e.clientY < svgRect.top || e.clientY > svgRect.bottom) {
+            const outline = document.getElementById('selectedOutline');
+            outline.style.display = 'none';
+        } 
+    });
+</script>
+
+</body>
+</html>
